@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
-const port = progress.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
 // middleware 
 app.use(cors());
@@ -28,8 +28,14 @@ async function run() {
     // await client.connect();
 
     const serviceCollection = client.db('save_life').collection('services')
+    const userCollection = client.db('save_life').collection('users')
 
-
+    // users related 
+    app.post('/users', async (req, res)=> {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -43,7 +49,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Save life!')
+    res.send('Save life server is running!')
   })
   
   app.listen(port, () => {
