@@ -66,9 +66,20 @@ async function run() {
         next()
     }
 
+    const verifyVolunteer = async (req, res, next)=> {
+        const email = req.decoded.email;
+        const query = {email: email}
+        const user = await userCollection.findOne(query);
+        const isVolunteer = user?.role === 'volunteer';
+        if(!isVolunteer){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+        next()
+    }
+
 
     // users related 
-    app.get('/users', verifyToken,verifyAdmin, async (req, res)=> {
+    app.get('/users', verifyToken, async (req, res)=> {
       const result = await userCollection.find().toArray()
       res.send(result)
     })
@@ -109,8 +120,8 @@ async function run() {
         const result = await userCollection.updateOne(filter, updatedDoc)
         res.send(result)
     })
-    
-    app.patch('/users/volunteer/:id',verifyToken,verifyAdmin, async(req, res)=> {
+
+    app.patch('/users/volunteer/:id',verifyToken,verifyVolunteer, async(req, res)=> {
         const id = req.params.id;
         const filter = {_id: new ObjectId(id)};
         const updatedDoc = {
@@ -122,7 +133,7 @@ async function run() {
         res.send(result)
     })
 
-    app.delete('/users/:id',verifyToken,verifyAdmin, async(req, res)=> {
+    app.delete('/users/:id',verifyToken, async(req, res)=> {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await userCollection.deleteOne(query);
