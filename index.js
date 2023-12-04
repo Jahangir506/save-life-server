@@ -31,6 +31,7 @@ async function run() {
     const serviceCollection = client.db('save_life').collection('services')
     const userCollection = client.db('save_life').collection('users')
     const blogCollection = client.db('save_life').collection('blogs')
+    const createDonRequestCollection = client.db('save_life').collection('createDonRequests')
 
     // jwt 
     app.post('/jwt', async(req, res)=> {
@@ -113,6 +114,13 @@ async function run() {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await userCollection.deleteOne(query);
+      res.send(result)
+    })
+
+    // create Donation Request 
+    app.post('/createDonationRequest', async(req, res)=> {
+      const createDonReq = req.body;
+      const result = await createDonRequestCollection.insertOne(createDonReq)
       res.send(result)
     })
 
