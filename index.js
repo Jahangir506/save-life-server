@@ -30,6 +30,7 @@ async function run() {
 
     const serviceCollection = client.db('save_life').collection('services')
     const userCollection = client.db('save_life').collection('users')
+    const blogCollection = client.db('save_life').collection('blogs')
 
     // jwt 
     app.post('/jwt', async(req, res)=> {
@@ -66,7 +67,7 @@ async function run() {
 
 
     // users related 
-    app.get('/users',verifyToken,verifyAdmin,async (req, res)=> {
+    app.get('/users', verifyToken,verifyAdmin, async (req, res)=> {
       const result = await userCollection.find().toArray()
       res.send(result)
     })
@@ -112,6 +113,18 @@ async function run() {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await userCollection.deleteOne(query);
+      res.send(result)
+    })
+
+    // blogs 
+    app.get('/blogs', async (req, res)=> {
+      const result = await blogCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.post('/blogs', verifyToken, async (req, res)=> {
+      const blog = req.body;
+      const result = await blogCollection.insertOne(blog)
       res.send(result)
     })
 
