@@ -79,7 +79,7 @@ async function run() {
 
 
     // users related 
-    app.get('/users', verifyToken, async (req, res)=> {
+    app.get('/users', verifyToken, verifyAdmin, async (req, res)=> {
       const result = await userCollection.find().toArray()
       res.send(result)
     })
@@ -98,6 +98,20 @@ async function run() {
         res.send({admin})
     })
 
+    app.get('/users/volunteer/:email', verifyToken, async(req, res)=> {
+        const email = req.params.email;
+        if(email !== req.decoded.email){
+            return res.status(403).send({message: 'forbidden access'})
+        }
+        const query = {email: email};
+        const user = await userCollection.findOne(query)
+        let volunteer = false;
+        if(user){
+          volunteer = user?.role === 'volunteer';
+        }
+        res.send({volunteer})
+    })
+
     app.post('/users', async (req, res)=> {
       const user = req.body;
       const query = {email: user.email}
@@ -109,7 +123,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/users/admin/:id',verifyToken,verifyAdmin, async(req, res)=> {
+    app.patch('/users/admin/:id',verifyToken, async(req, res)=> {
         const id = req.params.id;
         const filter = {_id: new ObjectId(id)};
         const updatedDoc = {
@@ -121,7 +135,7 @@ async function run() {
         res.send(result)
     })
 
-    app.patch('/users/volunteer/:id',verifyToken,verifyVolunteer, async(req, res)=> {
+    app.patch('/users/volunteer/:id',verifyToken, async(req, res)=> {
         const id = req.params.id;
         const filter = {_id: new ObjectId(id)};
         const updatedDoc = {
