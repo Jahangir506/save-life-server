@@ -122,7 +122,7 @@ async function run() {
       const result = await createDonRequestCollection.find().toArray()
       res.send(result)
     })
-    app.get('/createDonationRequest/:id', async(req, res)=> {
+    app.get('/createDonationRequest/:id', verifyToken,verifyAdmin, async(req, res)=> {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await createDonRequestCollection.findOne(query)
@@ -136,7 +136,7 @@ async function run() {
     })
 
     // blogs 
-    app.get('/blogs', async (req, res)=> {
+    app.get('/blogs', verifyToken, async (req, res)=> {
       const result = await blogCollection.find().toArray()
       res.send(result)
     })
