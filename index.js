@@ -118,6 +118,17 @@ async function run() {
     })
 
     // create Donation Request 
+    app.get('/createDonationRequest', async(req, res)=> {
+      const result = await createDonRequestCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/createDonationRequest/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await createDonRequestCollection.findOne(query)
+      res.send(result)
+    })
+
     app.post('/createDonationRequest', async(req, res)=> {
       const createDonReq = req.body;
       const result = await createDonRequestCollection.insertOne(createDonReq)
