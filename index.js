@@ -32,11 +32,12 @@ async function run() {
     const userCollection = client.db('save_life').collection('users')
     const blogCollection = client.db('save_life').collection('blogs')
     const createDonRequestCollection = client.db('save_life').collection('createDonRequests')
+    const fundingCollection = client.db('save_life').collection('funding')
 
     // jwt 
     app.post('/jwt', async(req, res)=> {
       const user = req.body;
-      const token = jwt.sign(user, process.env.TOKEN_ACCESS, {expiresIn: '1h'})
+      const token = jwt.sign(user, process.env.TOKEN_ACCESS, {expiresIn: '9h'})
       res.send({token})
     })
 
@@ -215,6 +216,34 @@ async function run() {
       const blog = req.body;
       const result = await blogCollection.insertOne(blog)
       res.send(result)
+    })
+
+    // funding 
+    app.get('/funding', async(req, res)=> {
+      const result = await fundingCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.post('/funding', async(req, res)=> {
+      const fund = req.body;
+      const result = await fundingCollection.insertOne(fund)
+      res.send(result)
+    })
+
+    app.post('/create-payment-intent', async(req, res) => {
+      const {price} = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount, 'amount inside the intent');
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      })
+
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
     })
 
     // Send a ping to confirm a successful connection
