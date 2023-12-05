@@ -36,7 +36,7 @@ async function run() {
     // jwt 
     app.post('/jwt', async(req, res)=> {
       const user = req.body;
-      const token = jwt.sign(user, process.env.TOKEN_ACCESS, {expiresIn: '3h'})
+      const token = jwt.sign(user, process.env.TOKEN_ACCESS, {expiresIn: '1h'})
       res.send({token})
     })
 
@@ -157,8 +157,10 @@ async function run() {
     // create Donation Request 
     app.get('/createDonationRequest', async(req, res)=> {
       const result = await createDonRequestCollection.find().toArray()
+      const count = await createDonRequestCollection.estimatedDocumentCount();
       res.send(result)
     })
+
     app.get('/createDonationRequest/:id', async(req, res)=> {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
@@ -169,6 +171,37 @@ async function run() {
     app.post('/createDonationRequest', async(req, res)=> {
       const createDonReq = req.body;
       const result = await createDonRequestCollection.insertOne(createDonReq)
+      res.send(result)
+    })
+
+    app.patch('/createDonationRequest/:id', async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          address: item.address,
+          date: item.date,
+          district: item.district,
+          hospitalName: item.hospitalName,
+          recipientName: item.recipientName,
+          reqMessage: item.reqMessage,
+          requesterEmail: item.requesterEmail,
+          requesterName: item.requesterName,
+          time: item.time,
+          upazila: item.upazila,
+          photo: item?.photoURL,
+          bloodGroup: item.bloodGroup,
+        }
+      }
+      const result = await createDonRequestCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+
+    app.delete('/createDonationRequest/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await createDonRequestCollection.deleteOne(query);
       res.send(result)
     })
 
